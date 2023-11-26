@@ -1,10 +1,11 @@
 package com.marwin.customerservice.services;
 
 import com.marwin.customerservice.models.CreateCustomerDTO;
-import org.springframework.stereotype.Service;
+import com.marwin.customerservice.models.WelcomeResponse;
+import com.marwin.customerservice.shared.ApiResponse;
+import org.springframework.http.ResponseEntity;
 
-@Service
+
 public interface CustomerService {
-
-
+    ResponseEntity<ApiResponse<WelcomeResponse>> createCustomer (CreateCustomerDTO customerDTO);
 }
