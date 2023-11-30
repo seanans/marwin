@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.marwin.customerservice", "com.marwin.customerservice.mappers"})
+@ComponentScan(basePackages = {"com.marwin.customerservice", "com.marwin.customerservice.mappers", "com.marwin.customerservice.controller"})
 public class CustomerserviceApplication {
 
 	public static void main(String[] args) {
