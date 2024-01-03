@@ -11,5 +11,7 @@ import java.util.UUID;
 public interface CustomerRepository extends JpaRepository<CustomerEntity, UUID>, JpaSpecificationExecutor<CustomerEntity> {
     boolean existsByEmail(String email);
     boolean existsByPhoneNumber(String phoneNumber);
+
+    CustomerEntity getCustomerEntityByPhoneNumber(String phoneNumber);
 }
 

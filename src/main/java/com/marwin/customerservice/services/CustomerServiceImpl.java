@@ -27,6 +27,8 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerRepository customerRepository;
     @Autowired
     private CustomerMapper customerMapper;
+    @Autowired
+    private SmsService smsService;
 
     @Override
     public ResponseEntity<ApiResponse<WelcomeResponse>> createCustomer(CreateCustomerDTO customerDTO) {
@@ -61,10 +63,55 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public ResponseEntity<String> verifyPhoneNumber(String phoneNumber, String code) {
+       try {
+           if (!PhoneNumberIsValid.isValidPhoneNumber(phoneNumber)) {
+               throw new InputDataException("Your phone number is incorrect");
+           }
+           var customer = customerRepository.getCustomerEntityByPhoneNumber(phoneNumber);
+           if (customer.isVerifiedPhoneNumber()) {
+               throw new InputDataException("Your phone is already verified");
+           }
+           if(customer.getVerificationCode().equals(code)) {
+               customer.setVerifiedPhoneNumber(true);
+               customerRepository.save(customer);
+               return  new ResponseEntity<>("Your account was verified by phone number", HttpStatus.OK);
+           } else
+               throw new InputDataException("Your code is incorrect");
+       } catch (InputDataException e) {
+           return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+       }
+
+    }
+
+
+    @Override
     public List<CustomerDTO> searchByRsql(String rsqlQuery) {
         Node rootNode = new RSQLParser().parse(rsqlQuery);
         Specification<CustomerEntity> specification = rootNode.accept(new CustomerRsqlVisitor<CustomerEntity>());
         System.out.println("Service Impl!");
         return customerMapper.customerEntitiesToCustomerDTO(customerRepository.findAll(specification));
     }
+
+    @Override
+    public Boolean sendSms(String phoneNumber) {
+            if (!PhoneNumberIsValid.isValidPhoneNumber(phoneNumber)) {
+                throw new InputDataException("Your phone number is incorrect");
+            }
+            var customer = customerRepository.getCustomerEntityByPhoneNumber(phoneNumber);
+            if (customer.isVerifiedPhoneNumber()) {
+                throw new InputDataException("Your phone number is already verified");
+            } else {
+                var smsStatus = smsService.sendSms(phoneNumber);
+                if (smsStatus.isSent()) {
+
+                    customer.setVerificationCode(smsStatus.getVerificationCode());
+                    customerRepository.save(customer);
+                    return true;
+                } else
+                    return false;
+            }
+    }
+
+
 }

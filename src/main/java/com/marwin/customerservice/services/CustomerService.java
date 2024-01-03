@@ -12,4 +12,10 @@ import java.util.List;
 public interface CustomerService {
     ResponseEntity<ApiResponse<WelcomeResponse>> createCustomer (CreateCustomerDTO customerDTO);
     List<CustomerDTO> searchByRsql(String rsqlQuery);
+
+    Boolean sendSms(String phoneNumber);
+
+    ResponseEntity<String> verifyPhoneNumber (String phoneNumber, String code);
+
+
 }

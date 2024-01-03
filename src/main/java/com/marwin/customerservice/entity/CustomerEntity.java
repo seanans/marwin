@@ -41,6 +41,12 @@ public class CustomerEntity {
     @NotEmpty
     private String name;
 
+    @Column(columnDefinition = "BOOLEAN default false")
+    private boolean isVerifiedPhoneNumber;
+
+    @Column
+    private String verificationCode;
+
     public CustomerEntity() {
 
     }
