@@ -5,10 +5,7 @@ import com.marwin.customerservice.exceptions.InputDataException;
 import com.marwin.customerservice.mappers.CustomerMapper;
 import com.marwin.customerservice.models.CreateCustomerDTO;
 import com.marwin.customerservice.models.CustomerDTO;
-import com.marwin.customerservice.models.CustomerResponse;
-import com.marwin.customerservice.models.WelcomeResponse;
 import com.marwin.customerservice.repository.CustomerRepository;
-import com.marwin.customerservice.shared.ApiResponse;
 import com.marwin.customerservice.visitor.CustomerRsqlVisitor;
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.ast.Node;
@@ -31,59 +28,43 @@ public class CustomerServiceImpl implements CustomerService {
     private SmsService smsService;
 
     @Override
-    public ResponseEntity<ApiResponse<WelcomeResponse>> createCustomer(CreateCustomerDTO customerDTO) {
-
-        try {
-            if (!PhoneNumberIsValid.isValidPhoneNumber(customerDTO.getPhoneNumber())) {
-                throw new InputDataException("Your phone number is incorrect");
-            }
-            if (customerRepository.existsByPhoneNumber(customerDTO.getPhoneNumber())) {
-                throw new InputDataException("Your phone number is already in use");
-            }
-            if (!NameIsValid.isValidName(customerDTO.getName())) {
-                throw new InputDataException("Your name is incorrect");
-            }
-            if (!EmailValid.isValidEmail(customerDTO.getEmail())) {
-                throw new InputDataException("Your email is incorrect");
-            }
-            if (customerRepository.existsByEmail(customerDTO.getEmail())) {
-                throw new InputDataException("Your email is already in use");
-            }
-
-            customerRepository.save(customerMapper.createCustomerDTOToCustomerEntity(customerDTO));
-            String welcomeMessage = String.format("Welcome, %s! Your account has been successfully created.",
-                    customerDTO.getName());
-            CustomerResponse customerResponse = new CustomerResponse(customerDTO.getPhoneNumber(), customerDTO.getName(), customerDTO.getEmail());
-            WelcomeResponse welcomeResponse = new WelcomeResponse(welcomeMessage, customerResponse);
-            return new ResponseEntity<>(ApiResponse.success(welcomeResponse), HttpStatus.CREATED);
-        } catch (InputDataException e) {
-            return new ResponseEntity<>(ApiResponse.error(e.getMessage()), HttpStatus.BAD_REQUEST);
+    public void createCustomer(CreateCustomerDTO customerDTO) {
+        validateCustomerData(customerDTO);
+        customerRepository.save(customerMapper.createCustomerDTOToCustomerEntity(customerDTO));
+    }
+    private void validateCustomerData(CreateCustomerDTO customerDTO) {
+        if (!PhoneNumberIsValid.isValidPhoneNumber(customerDTO.getPhoneNumber())) {
+            throw new InputDataException("Your phone number is incorrect");
         }
-
+        if (customerRepository.existsByPhoneNumber(customerDTO.getPhoneNumber())) {
+            throw new InputDataException("Your phone number is already in use");
+        }
+        if (!NameIsValid.isValidName(customerDTO.getName())) {
+            throw new InputDataException("Your name is incorrect");
+        }
+        if (!EmailValid.isValidEmail(customerDTO.getEmail())) {
+            throw new InputDataException("Your email is incorrect");
+        }
+        if (customerRepository.existsByEmail(customerDTO.getEmail())) {
+            throw new InputDataException("Your email is already in use");
+        }
     }
 
     @Override
-    public ResponseEntity<String> verifyPhoneNumber(String phoneNumber, String code) {
-       try {
+    public void verifyPhoneNumber(String phoneNumber, String code) {
            if (!PhoneNumberIsValid.isValidPhoneNumber(phoneNumber)) {
-               throw new InputDataException("Your phone number is incorrect");
+               throw new InputDataException("Invalid phone number");
            }
            var customer = customerRepository.getCustomerEntityByPhoneNumber(phoneNumber);
            if (customer.isVerifiedPhoneNumber()) {
-               throw new InputDataException("Your phone is already verified");
+               throw new InputDataException("Phone already verified");
            }
            if(customer.getVerificationCode().equals(code)) {
                customer.setVerifiedPhoneNumber(true);
                customerRepository.save(customer);
-               return  new ResponseEntity<>("Your account was verified by phone number", HttpStatus.OK);
            } else
-               throw new InputDataException("Your code is incorrect");
-       } catch (InputDataException e) {
-           return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-       }
-
+               throw new InputDataException("Incorrect code");
     }
-
 
     @Override
     public List<CustomerDTO> searchByRsql(String rsqlQuery) {
@@ -94,7 +75,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Boolean sendSms(String phoneNumber) {
+    public void sendSms(String phoneNumber) {
             if (!PhoneNumberIsValid.isValidPhoneNumber(phoneNumber)) {
                 throw new InputDataException("Your phone number is incorrect");
             }
@@ -104,12 +85,10 @@ public class CustomerServiceImpl implements CustomerService {
             } else {
                 var smsStatus = smsService.sendSms(phoneNumber);
                 if (smsStatus.isSent()) {
-
                     customer.setVerificationCode(smsStatus.getVerificationCode());
                     customerRepository.save(customer);
-                    return true;
                 } else
-                    return false;
+                    throw new RuntimeException("SMS sending failed");
             }
     }
 

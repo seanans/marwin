@@ -38,7 +38,7 @@ public class SmsService {
         TextMessage message = new TextMessage(
                 brandName,
                 phoneNumber,
-                "Welcome, your verification code: " + code
+                "Welcome from Marwin, your verification code: " + code + " Enter this code to the site"
         );
         SmsSubmissionResponse response = client.getSmsClient().submitMessage(message);
         if (response.getMessages().get(0).getStatus() == MessageStatus.OK) {
