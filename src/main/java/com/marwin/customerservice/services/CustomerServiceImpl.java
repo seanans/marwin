@@ -11,8 +11,6 @@ import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.ast.Node;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,6 +30,7 @@ public class CustomerServiceImpl implements CustomerService {
         validateCustomerData(customerDTO);
         customerRepository.save(customerMapper.createCustomerDTOToCustomerEntity(customerDTO));
     }
+
     private void validateCustomerData(CreateCustomerDTO customerDTO) {
         if (!PhoneNumberIsValid.isValidPhoneNumber(customerDTO.getPhoneNumber())) {
             throw new InputDataException("Your phone number is incorrect");
@@ -52,18 +51,18 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void verifyPhoneNumber(String phoneNumber, String code) {
-           if (!PhoneNumberIsValid.isValidPhoneNumber(phoneNumber)) {
-               throw new InputDataException("Invalid phone number");
-           }
-           var customer = customerRepository.getCustomerEntityByPhoneNumber(phoneNumber);
-           if (customer.isVerifiedPhoneNumber()) {
-               throw new InputDataException("Phone already verified");
-           }
-           if(customer.getVerificationCode().equals(code)) {
-               customer.setVerifiedPhoneNumber(true);
-               customerRepository.save(customer);
-           } else
-               throw new InputDataException("Incorrect code");
+        if (!PhoneNumberIsValid.isValidPhoneNumber(phoneNumber)) {
+            throw new InputDataException("Invalid phone number");
+        }
+        var customer = customerRepository.getCustomerEntityByPhoneNumber(phoneNumber);
+        if (customer.isVerifiedPhoneNumber()) {
+            throw new InputDataException("Phone already verified");
+        }
+        if (customer.getVerificationCode().equals(code)) {
+            customer.setVerifiedPhoneNumber(true);
+            customerRepository.save(customer);
+        } else
+            throw new InputDataException("Incorrect code");
     }
 
     @Override
@@ -76,20 +75,20 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void sendSms(String phoneNumber) {
-            if (!PhoneNumberIsValid.isValidPhoneNumber(phoneNumber)) {
-                throw new InputDataException("Your phone number is incorrect");
-            }
-            var customer = customerRepository.getCustomerEntityByPhoneNumber(phoneNumber);
-            if (customer.isVerifiedPhoneNumber()) {
-                throw new InputDataException("Your phone number is already verified");
-            } else {
-                var smsStatus = smsService.sendSms(phoneNumber);
-                if (smsStatus.isSent()) {
-                    customer.setVerificationCode(smsStatus.getVerificationCode());
-                    customerRepository.save(customer);
-                } else
-                    throw new RuntimeException("SMS sending failed");
-            }
+        if (!PhoneNumberIsValid.isValidPhoneNumber(phoneNumber)) {
+            throw new InputDataException("Your phone number is incorrect");
+        }
+        var customer = customerRepository.getCustomerEntityByPhoneNumber(phoneNumber);
+        if (customer.isVerifiedPhoneNumber()) {
+            throw new InputDataException("Your phone number is already verified");
+        } else {
+            var smsStatus = smsService.sendSms(phoneNumber);
+            if (smsStatus.isSent()) {
+                customer.setVerificationCode(smsStatus.getVerificationCode());
+                customerRepository.save(customer);
+            } else
+                throw new RuntimeException("SMS sending failed");
+        }
     }
 
 
