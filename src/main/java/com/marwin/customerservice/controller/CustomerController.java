@@ -24,14 +24,14 @@ public class CustomerController {
 
     @PostMapping("/create")
     private ResponseEntity<?> createCustomer(@RequestBody CreateCustomerDTO customerDTO) {
-       try {
-           customerService.createCustomer(customerDTO);
-           return ResponseEntity.status(HttpStatus.CREATED).build();
-       } catch (InputDataException e) {
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-       } catch (Exception e) {
-           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-       }
+        try {
+            customerService.createCustomer(customerDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (InputDataException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/find")

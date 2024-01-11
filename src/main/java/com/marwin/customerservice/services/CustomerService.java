@@ -7,11 +7,12 @@ import java.util.List;
 
 
 public interface CustomerService {
-    void createCustomer (CreateCustomerDTO customerDTO);
+    void createCustomer(CreateCustomerDTO customerDTO);
+
     List<CustomerDTO> searchByRsql(String rsqlQuery);
 
     void sendSms(String phoneNumber);
 
-    void verifyPhoneNumber (String phoneNumber, String code);
+    void verifyPhoneNumber(String phoneNumber, String code);
 
 }

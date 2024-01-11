@@ -17,7 +17,7 @@ public class GenericRsqlSpecBuilder<T> {
             return createSpecification((LogicalNode) node);
         }
         if (node instanceof ComparisonNode) {
-            return createSpecification((ComparisonNode) node);
+            return createSpecification(node);
         }
         return null;
     }

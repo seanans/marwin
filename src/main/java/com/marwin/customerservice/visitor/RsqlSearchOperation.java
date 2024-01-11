@@ -14,9 +14,9 @@ public enum RsqlSearchOperation {
     IN(RSQLOperators.IN),
     NOT_IN(RSQLOperators.NOT_IN);
 
-    private ComparisonOperator operator;
+    private final ComparisonOperator operator;
 
-    private RsqlSearchOperation(ComparisonOperator operator) {
+    RsqlSearchOperation(ComparisonOperator operator) {
         this.operator = operator;
     }
 

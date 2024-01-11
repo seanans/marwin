@@ -4,7 +4,6 @@ import com.marwin.customerservice.entity.CustomerEntity;
 import com.marwin.customerservice.models.CreateCustomerDTO;
 import com.marwin.customerservice.models.CustomerDTO;
 import org.mapstruct.Mapper;
-
 import org.springframework.stereotype.Component;
 
 import java.util.List;

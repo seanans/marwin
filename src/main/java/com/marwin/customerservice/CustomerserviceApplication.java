@@ -8,8 +8,8 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = {"com.marwin.customerservice", "com.marwin.customerservice.mappers", "com.marwin.customerservice.controller"})
 public class CustomerserviceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(CustomerserviceApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(CustomerserviceApplication.class, args);
+    }
 
 }
