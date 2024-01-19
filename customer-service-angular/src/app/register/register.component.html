@@ -1,0 +1,23 @@
+<div class = "container">
+  <h2 class="title">Marwin</h2>
+  <form (ngSubmit) = "onSubmit()" *ngIf = "!isRegistered" #registerForm="ngForm">
+    <div class="form-group">
+      <input type="text" class="form-control" placeholder="Name" [(ngModel)]="customer.name" name="name" required maxlength="15" pattern="[A-Za-zА-Яа-я]*" (keyup)="validateInput('name')">
+      <small *ngIf="nameInvalid" class="error-message">Invalid input</small>
+    </div>
+    <div class="form-group">
+      <input type="email" class="form-control" placeholder="Email" [(ngModel)]="customer.email" name="email" required (keyup)="validateInput('email')">
+      <small *ngIf="emailInvalid" class="error-message">Invalid input</small>
+    </div>
+    <div class="form-group">
+      <input type="tel" class="form-control" placeholder="Phone (+380999999999)" [(ngModel)]="customer.phoneNumber" name="phoneNumber" required pattern="\+380[0-9]{9}" (keyup)="validateInput('phone')">
+      <small *ngIf="phoneInvalid" class="error-message">Invalid input</small>
+    </div>
+    <button type="submit" class="btn" [disabled]="!registerForm.form.valid">Sign Up</button>
+  </form>
+  <div *ngIf="isRegistered">
+    <input type="text" class="form-control" placeholder="SMS Code" [(ngModel)]="smsCode">
+    <button (click)="sendSMS()">Send SMS</button>
+    <button (click)="submitCode()">Submit Code</button>
+  </div>
+</div>
