@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 
 @RestController
@@ -22,7 +23,7 @@ public class CustomerController {
     @Autowired
     private SmsService smsService;
 
-    @PostMapping("/create")
+    @PostMapping("/signup")
     private ResponseEntity<?> createCustomer(@RequestBody CreateCustomerDTO customerDTO) {
         try {
             customerService.createCustomer(customerDTO);
@@ -60,6 +61,19 @@ public class CustomerController {
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (InputDataException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    //Need official documents to integrate with real payments.
+    @PostMapping("/balance/add")
+    private ResponseEntity<?> addToBalance(@RequestParam("phoneNumber") String phoneNumber, @RequestParam("amount") Integer amount) {
+        try {
+            customerService.addToBalance(phoneNumber, amount);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (InputDataException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

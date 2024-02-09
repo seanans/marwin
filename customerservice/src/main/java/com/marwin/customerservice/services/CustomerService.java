@@ -15,4 +15,6 @@ public interface CustomerService {
 
     void verifyPhoneNumber(String phoneNumber, String code);
 
+    void  addToBalance(String phoneNumber, Integer amount);
+
 }

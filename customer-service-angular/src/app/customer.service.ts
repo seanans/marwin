@@ -9,7 +9,7 @@ export class CustomerService {
   private baseUrl = 'http://localhost:8080/v1/customer'
   constructor(private http: HttpClient) { }
   createCustomer(customer: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/create`, customer);
+    return this.http.post(`${this.baseUrl}/signup`, customer);
   }
   sendVerificationCode(phoneNumber: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/verify?phoneNumber=${encodeURIComponent(phoneNumber)}`, {})

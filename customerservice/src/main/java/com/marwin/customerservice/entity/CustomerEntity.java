@@ -47,6 +47,8 @@ public class CustomerEntity {
     @Column
     private String verificationCode;
 
+    @Column(nullable = false)
+    private Integer balance = 0;
     public CustomerEntity() {
 
     }

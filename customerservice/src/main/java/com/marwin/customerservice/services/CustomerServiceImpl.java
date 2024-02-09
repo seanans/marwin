@@ -66,6 +66,22 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public void addToBalance(String phoneNumber, Integer amount) {
+        if (!PhoneNumberIsValid.isValidPhoneNumber(phoneNumber)) {
+            throw new InputDataException("Invalid phone number");
+        }
+        if (amount == 0 || amount < 0) {
+            throw new InputDataException("You can`t add nothing to your balance");
+        }
+        var customer = customerRepository.getCustomerEntityByPhoneNumber(phoneNumber);
+        if (!customer.isVerifiedPhoneNumber()) {
+            throw new InputDataException("Phone does not verified, you can`t add to your account without phone verification");
+        }
+        customer.setBalance(customer.getBalance() + amount);
+        customerRepository.save(customer);
+    }
+
+    @Override
     public List<CustomerDTO> searchByRsql(String rsqlQuery) {
         Node rootNode = new RSQLParser().parse(rsqlQuery);
         Specification<CustomerEntity> specification = rootNode.accept(new CustomerRsqlVisitor<CustomerEntity>());
