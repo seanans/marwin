@@ -84,7 +84,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public List<CustomerDTO> searchByRsql(String rsqlQuery) {
         Node rootNode = new RSQLParser().parse(rsqlQuery);
-        Specification<CustomerEntity> specification = rootNode.accept(new CustomerRsqlVisitor<CustomerEntity>());
+        Specification<CustomerEntity> specification = rootNode.accept(new CustomerRsqlVisitor<>());
         System.out.println("Service Impl!");
         return customerMapper.customerEntitiesToCustomerDTO(customerRepository.findAll(specification));
     }
