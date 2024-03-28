@@ -20,7 +20,7 @@ public class SecurityConfig  {
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/v1/customer/signup", "/v1/customer/login").permitAll()
                         .anyRequest().authenticated())
-                .formLogin((form) -> form.loginPage("/login").permitAll())
+                .formLogin((form) -> form.loginPage("/v1/customer/login").permitAll())
                 .logout(LogoutConfigurer::permitAll);
         return http.build();
     }

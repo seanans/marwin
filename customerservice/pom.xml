@@ -164,7 +164,6 @@
 						</annotationProcessorPaths>
 						<compilerArgs>
 							<compilerArg>
-								-Amapstruct.defaultComponentModel=spring
 							</compilerArg>
 						</compilerArgs>
 					</configuration>
