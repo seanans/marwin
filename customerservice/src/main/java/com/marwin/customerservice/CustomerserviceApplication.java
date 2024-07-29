@@ -5,7 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootApplication(exclude = { SecurityAutoConfiguration.class }) //disable security
+//@SpringBootApplication(exclude = { SecurityAutoConfiguration.class }) //disable security
+@SpringBootApplication
 @ComponentScan(basePackages = {"com.marwin.customerservice", "com.marwin.customerservice.mappers", "com.marwin.customerservice.controller"})
 public class CustomerserviceApplication {
 
