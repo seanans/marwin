@@ -7,7 +7,9 @@ import java.util.List;
 
 
 public interface CustomerService {
-    void createCustomer(CreateCustomerDTO customerDTO);
+    void createCustomerWithPhoneNumber(String phoneNumber);
+
+ //   void createCustomer(CreateCustomerDTO customerDTO);
 
     List<CustomerDTO> searchByRsql(String rsqlQuery);
 
@@ -17,4 +19,5 @@ public interface CustomerService {
 
     void  addToBalance(String phoneNumber, Integer amount);
 
+    boolean customerExists(String phoneNumber);
 }

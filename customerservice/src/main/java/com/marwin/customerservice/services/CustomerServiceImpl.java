@@ -26,6 +26,20 @@ public class CustomerServiceImpl implements CustomerService {
     private SmsService smsService;
 
     @Override
+    public void createCustomerWithPhoneNumber(String phoneNumber) {
+        if (!PhoneNumberIsValid.isValidPhoneNumber(phoneNumber)) {
+            throw new InputDataException("Your phone number is incorrect");
+        }
+        if (customerRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new InputDataException("Your phone number is already in use");
+        }
+        var customer = new CustomerEntity();
+        customer.setPhoneNumber(phoneNumber);
+        customerRepository.save(customer);
+        sendSms(phoneNumber);
+    }
+    /*
+    @Override
     public void createCustomer(CreateCustomerDTO customerDTO) {
         validateCustomerData(customerDTO);
         customerRepository.save(customerMapper.createCustomerDTOToCustomerEntity(customerDTO));
@@ -48,7 +62,7 @@ public class CustomerServiceImpl implements CustomerService {
             throw new InputDataException("Your email is already in use");
         }
     }
-
+*/
     @Override
     public void verifyPhoneNumber(String phoneNumber, String code) {
         if (!PhoneNumberIsValid.isValidPhoneNumber(phoneNumber)) {
@@ -79,6 +93,11 @@ public class CustomerServiceImpl implements CustomerService {
         }
         customer.setBalance(customer.getBalance() + amount);
         customerRepository.save(customer);
+    }
+
+    @Override
+    public boolean customerExists(String phoneNumber) {
+        return customerRepository.existsByPhoneNumber(phoneNumber);
     }
 
     @Override

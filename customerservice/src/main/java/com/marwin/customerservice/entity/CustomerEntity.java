@@ -31,14 +31,11 @@ public class CustomerEntity {
     @Pattern(regexp = "^\\+\\d+$", message = "Phone number must start with a plus sign and contain only digits.")
     private String phoneNumber;
 
-    @NotNull
-    @NotEmpty
     @Column(unique = true)
     @Email(message = "Email should be valid")
     private String email;
 
-    @NotNull
-    @NotEmpty
+    @Column
     private String name;
 
     @Column(columnDefinition = "BOOLEAN default false")

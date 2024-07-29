@@ -40,6 +40,7 @@ public class SmsService {
                 phoneNumber,
                 "Welcome from Marwin, your verification code: " + code + " Enter this code to the site"
         );
+        System.out.println("Sending SMS to " + phoneNumber + " with code: " + code);
         SmsSubmissionResponse response = client.getSmsClient().submitMessage(message);
         if (response.getMessages().get(0).getStatus() == MessageStatus.OK) {
             System.out.println("Message sent successfully.");

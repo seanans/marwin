@@ -3,14 +3,16 @@ package com.marwin.customerservice.controller;
 import com.marwin.customerservice.exceptions.InputDataException;
 import com.marwin.customerservice.models.CreateCustomerDTO;
 import com.marwin.customerservice.models.CustomerDTO;
+import com.marwin.customerservice.models.JwtResponse;
+import com.marwin.customerservice.models.LoginRequest;
+import com.marwin.customerservice.services.AuthenticationService;
 import com.marwin.customerservice.services.CustomerService;
-import com.marwin.customerservice.services.SmsService;
+import com.marwin.customerservice.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 
 @RestController
@@ -19,48 +21,58 @@ public class CustomerController {
 
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private AuthenticationService authenticationService;
 
     @Autowired
-    private SmsService smsService;
+    private JwtUtil jwtUtil;
 
-    @PostMapping("/signup")
-    private ResponseEntity<?> createCustomer(@RequestBody CreateCustomerDTO customerDTO) {
+    @PostMapping("/submit-phone")
+    public ResponseEntity<?> submitPhoneNumber(@RequestParam("phoneNumber") String phoneNumber) {
         try {
-            customerService.createCustomer(customerDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            if (customerService.customerExists(phoneNumber)) {
+                customerService.sendSms(phoneNumber);
+            } else {
+                customerService.createCustomerWithPhoneNumber(phoneNumber);
+            }
+            return ResponseEntity.status(HttpStatus.OK).build();
         } catch (InputDataException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
     @GetMapping("/find")
     @ResponseBody
     private List<CustomerDTO> findAllByRsql(@RequestParam(value = "search") String search) {
-        System.out.println("Controller!");
         return customerService.searchByRsql(search);
     }
 
     @PostMapping("/verify")
-    private ResponseEntity<?> sendVerificationCode(@RequestParam("phoneNumber") String phoneNumber) {
+    public ResponseEntity<?> verifyAccount(@RequestParam("phoneNumber") String phoneNumber, @RequestParam("code") String code) {
         try {
-            customerService.sendSms(phoneNumber);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            customerService.verifyPhoneNumber(phoneNumber, code);
+            String token = jwtUtil.generateToken(phoneNumber);
+            return ResponseEntity.ok(new JwtResponse(token));
         } catch (InputDataException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid verification code");
         }
     }
 
-    @PostMapping("/verify/confirm")
-    private ResponseEntity<?> verifyAccount(@RequestParam("phoneNumber") String phoneNumber, @RequestParam("code") String code) {
+    @GetMapping("/validate-token")
+    public ResponseEntity<?> validateToken(@RequestParam("token") String token) {
         try {
-            customerService.verifyPhoneNumber(phoneNumber, code);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } catch (InputDataException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            String phoneNumber = jwtUtil.extractClaims(token).getSubject();
+            if (jwtUtil.validateToken(token, phoneNumber)) {
+                return ResponseEntity.ok(new JwtResponse(token));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is invalid or expired");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
         }
     }
 
