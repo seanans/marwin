@@ -1,5 +1,8 @@
 package com.marwin.customerservice.models;
 
+import lombok.Getter;
+
+@Getter
 public class JwtResponse {
     private final String jwt;
 
@@ -7,7 +10,4 @@ public class JwtResponse {
         this.jwt = jwt;
     }
 
-    public String getJwt() {
-        return jwt;
-    }
 }

@@ -1,10 +1,8 @@
 package com.marwin.customerservice.controller;
 
 import com.marwin.customerservice.exceptions.InputDataException;
-import com.marwin.customerservice.models.CreateCustomerDTO;
 import com.marwin.customerservice.models.CustomerDTO;
 import com.marwin.customerservice.models.JwtResponse;
-import com.marwin.customerservice.models.LoginRequest;
 import com.marwin.customerservice.services.AuthenticationService;
 import com.marwin.customerservice.services.CustomerService;
 import com.marwin.customerservice.utils.JwtUtil;

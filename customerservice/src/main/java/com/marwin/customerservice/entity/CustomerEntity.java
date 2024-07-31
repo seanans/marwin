@@ -46,6 +46,7 @@ public class CustomerEntity {
 
     @Column(nullable = false)
     private Integer balance = 0;
+
     public CustomerEntity() {
 
     }

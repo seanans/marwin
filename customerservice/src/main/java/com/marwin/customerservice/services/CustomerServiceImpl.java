@@ -3,7 +3,6 @@ package com.marwin.customerservice.services;
 import com.marwin.customerservice.entity.CustomerEntity;
 import com.marwin.customerservice.exceptions.InputDataException;
 import com.marwin.customerservice.mappers.CustomerMapper;
-import com.marwin.customerservice.models.CreateCustomerDTO;
 import com.marwin.customerservice.models.CustomerDTO;
 import com.marwin.customerservice.repository.CustomerRepository;
 import com.marwin.customerservice.visitor.CustomerRsqlVisitor;
@@ -38,6 +37,7 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.save(customer);
         sendSms(phoneNumber);
     }
+
     /*
     @Override
     public void createCustomer(CreateCustomerDTO customerDTO) {
