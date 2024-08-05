@@ -3,5 +3,7 @@ package com.marwin.customerservice.services;
 import com.marwin.customerservice.models.JwtResponse;
 
 public interface AuthenticationService {
-    JwtResponse verifyAndAuthenticate(String phoneNumber, String code);
+    JwtResponse authenticateUser(String phoneNumber);
+
+    void verifyPhoneNumberCode(String phoneNumber, String code);
 }

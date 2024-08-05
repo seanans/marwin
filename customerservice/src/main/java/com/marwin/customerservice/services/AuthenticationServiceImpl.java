@@ -11,9 +11,6 @@ import org.springframework.stereotype.Service;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
     private CustomerDetailsService customerDetailsService;
 
     @Autowired
@@ -23,12 +20,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private CustomerService customerService;
 
     @Override
-    public JwtResponse verifyAndAuthenticate(String phoneNumber, String code) {
-        customerService.verifyPhoneNumber(phoneNumber, code);
-
+    public JwtResponse authenticateUser(String phoneNumber) {
         final UserDetails userDetails = customerDetailsService.loadUserByUsername(phoneNumber);
         final String jwt = jwtUtil.generateToken(userDetails.getUsername());
-
         return new JwtResponse(jwt);
+    }
+
+    @Override
+    public void verifyPhoneNumberCode(String phoneNumber, String code) {
+        customerService.verifyPhoneNumber(phoneNumber, code);
     }
 }

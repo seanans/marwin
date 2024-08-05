@@ -1,4 +1,4 @@
-package com.marwin.customerservice.controller;
+package com.marwin.customerservice.controllers;
 
 import com.marwin.customerservice.exceptions.InputDataException;
 import com.marwin.customerservice.models.CustomerDTO;
@@ -51,10 +51,10 @@ public class CustomerController {
     public ResponseEntity<?> verifyAccount(@RequestParam("phoneNumber") String phoneNumber, @RequestParam("code") String code) {
         try {
             customerService.verifyPhoneNumber(phoneNumber, code);
-            String token = jwtUtil.generateToken(phoneNumber);
-            return ResponseEntity.ok(new JwtResponse(token));
+            JwtResponse jwtResponse = authenticationService.authenticateUser(phoneNumber);
+            return ResponseEntity.ok(jwtResponse);
         } catch (InputDataException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid verification code");
         }

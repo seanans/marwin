@@ -6,7 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 //@SpringBootApplication(exclude = { SecurityAutoConfiguration.class }) //disable security
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.marwin.customerservice", "com.marwin.customerservice.mappers", "com.marwin.customerservice.controller"})
+@ComponentScan(basePackages = {"com.marwin.customerservice", "com.marwin.customerservice.mappers", "com.marwin.customerservice.controllers"})
 public class CustomerserviceApplication {
 
     public static void main(String[] args) {

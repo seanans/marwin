@@ -38,31 +38,6 @@ public class CustomerServiceImpl implements CustomerService {
         sendSms(phoneNumber);
     }
 
-    /*
-    @Override
-    public void createCustomer(CreateCustomerDTO customerDTO) {
-        validateCustomerData(customerDTO);
-        customerRepository.save(customerMapper.createCustomerDTOToCustomerEntity(customerDTO));
-    }
-
-    private void validateCustomerData(CreateCustomerDTO customerDTO) {
-        if (!PhoneNumberIsValid.isValidPhoneNumber(customerDTO.getPhoneNumber())) {
-            throw new InputDataException("Your phone number is incorrect");
-        }
-        if (customerRepository.existsByPhoneNumber(customerDTO.getPhoneNumber())) {
-            throw new InputDataException("Your phone number is already in use");
-        }
-        if (!NameIsValid.isValidName(customerDTO.getName())) {
-            throw new InputDataException("Your name is incorrect");
-        }
-        if (!EmailValid.isValidEmail(customerDTO.getEmail())) {
-            throw new InputDataException("Your email is incorrect");
-        }
-        if (customerRepository.existsByEmail(customerDTO.getEmail())) {
-            throw new InputDataException("Your email is already in use");
-        }
-    }
-*/
     @Override
     public void verifyPhoneNumber(String phoneNumber, String code) {
         if (!PhoneNumberIsValid.isValidPhoneNumber(phoneNumber)) {
