@@ -18,7 +18,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(phoneNumber)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 604800000L)) // 7 days
+                .setExpiration(new Date(System.currentTimeMillis() + 2419200000L)) // 28 days
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
     }
@@ -28,6 +28,10 @@ public class JwtUtil {
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public String getSubjectFromToken(String token) {
+        return extractClaims(token).getSubject();
     }
 
     public boolean validateToken(String token, String phoneNumber) {

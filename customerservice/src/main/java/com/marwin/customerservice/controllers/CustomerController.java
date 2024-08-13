@@ -3,6 +3,7 @@ package com.marwin.customerservice.controllers;
 import com.marwin.customerservice.exceptions.InputDataException;
 import com.marwin.customerservice.models.CustomerDTO;
 import com.marwin.customerservice.models.JwtResponse;
+import com.marwin.customerservice.models.UpdateProfileDTO;
 import com.marwin.customerservice.services.AuthenticationService;
 import com.marwin.customerservice.services.CustomerService;
 import com.marwin.customerservice.utils.JwtUtil;
@@ -57,6 +58,42 @@ public class CustomerController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid verification code");
+        }
+    }
+
+    @PatchMapping("/update-profile")
+    public ResponseEntity<?> updateProfile(@RequestHeader("Authorization") String token, @RequestBody UpdateProfileDTO profileDTO) {
+        try {
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7); // Remove the "Bearer " part
+            }
+            
+            String phoneNumber = jwtUtil.extractClaims(token).getSubject();
+            customerService.updateProfileInfo(phoneNumber, profileDTO);
+            return ResponseEntity.ok("Profile updated successfully");
+        } catch (InputDataException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+    }
+
+    @PostMapping("/add-name")
+    public ResponseEntity<?> addName(@RequestHeader("Authorization") String token, @RequestParam("name") String name) {
+        try {
+
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7); // Remove the "Bearer " part
+            }
+
+            String phoneNumber = jwtUtil.extractClaims(token).getSubject();
+
+            customerService.addNameToProfile(phoneNumber, name);
+            return ResponseEntity.ok("Name added successfully");
+        } catch (InputDataException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
         }
     }
 

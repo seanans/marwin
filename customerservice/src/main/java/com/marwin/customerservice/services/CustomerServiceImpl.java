@@ -4,6 +4,7 @@ import com.marwin.customerservice.entity.CustomerEntity;
 import com.marwin.customerservice.exceptions.InputDataException;
 import com.marwin.customerservice.mappers.CustomerMapper;
 import com.marwin.customerservice.models.CustomerDTO;
+import com.marwin.customerservice.models.UpdateProfileDTO;
 import com.marwin.customerservice.repository.CustomerRepository;
 import com.marwin.customerservice.visitor.CustomerRsqlVisitor;
 import cz.jirutka.rsql.parser.RSQLParser;
@@ -73,6 +74,56 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public boolean customerExists(String phoneNumber) {
         return customerRepository.existsByPhoneNumber(phoneNumber);
+    }
+
+    @Override
+    public void addNameToProfile(String phoneNumber, String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new InputDataException("Name cannot be empty");
+        }
+        var customerEntity = customerRepository.getCustomerEntityByPhoneNumber(phoneNumber);
+        if (customerEntity == null) {
+            throw new InputDataException("Customer not found");
+        }
+        customerEntity.setName(name);
+        if (!customerEntity.isProfileComplete()) {
+            customerEntity.setProfileComplete(true);
+        }
+        customerRepository.save(customerEntity);
+    }
+
+    @Override
+    public void updateProfileInfo(String phoneNumber, UpdateProfileDTO profileDTO) {
+        CustomerEntity customer = customerRepository.getCustomerEntityByPhoneNumber(phoneNumber);
+
+        if (profileDTO.getName() != null) {
+            customer.setName(profileDTO.getName());
+        }
+        if (profileDTO.getEmail() != null) {
+            customer.setEmail(profileDTO.getEmail());
+        }
+        if (profileDTO.getProfilePhoto() != null) {
+            customer.setProfilePhoto(profileDTO.getProfilePhoto());
+        }
+        if (profileDTO.getHomeAddress() != null) {
+            customer.setHomeAddress(profileDTO.getHomeAddress());
+        }
+        if (profileDTO.getPreferredPaymentMethod() != null) {
+            customer.setPreferredPaymentMethod(profileDTO.getPreferredPaymentMethod());
+        }
+        if (profileDTO.getEmergencyContact() != null) {
+            customer.setEmergencyContact(profileDTO.getEmergencyContact());
+        }
+        if (profileDTO.getPreferredLanguage() != null) {
+            customer.setPreferredLanguage(profileDTO.getPreferredLanguage());
+        }
+
+        // Check if profile is complete
+        if (customer.getName() != null && !customer.getName().isEmpty()) {
+            customer.setProfileComplete(true);
+        }
+
+        customerRepository.save(customer);
     }
 
     @Override

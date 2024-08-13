@@ -2,13 +2,19 @@ package com.marwin.customerservice.services;
 
 import com.marwin.customerservice.entity.CustomerEntity;
 import com.marwin.customerservice.exceptions.InputDataException;
+import com.marwin.customerservice.mappers.CustomerMapper;
+import com.marwin.customerservice.models.CustomerDTO;
 import com.marwin.customerservice.models.SmsVerifyDTO;
+import com.marwin.customerservice.models.UpdateProfileDTO;
 import com.marwin.customerservice.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,6 +29,8 @@ class CustomerServiceTest {
     private SmsService smsService;
     @InjectMocks
     private CustomerServiceImpl customerService;
+    @Mock
+    private CustomerMapper customerMapper;
 
     @BeforeEach
     void setUp() {
@@ -132,5 +140,130 @@ class CustomerServiceTest {
         when(customerRepository.getCustomerEntityByPhoneNumber(anyString())).thenReturn(customerEntity);
 
         assertThrows(InputDataException.class, () -> customerService.addToBalance(phoneNumber, amount));
+    }
+
+    @Test
+    void addNameToProfile_whenNameIsValid_thenSuccess() {
+        String phoneNumber = "+380976727479";
+        String name = "John Doe";
+
+        CustomerEntity customerEntity = new CustomerEntity();
+        customerEntity.setPhoneNumber(phoneNumber);
+
+        when(customerRepository.getCustomerEntityByPhoneNumber(phoneNumber)).thenReturn(customerEntity);
+
+        assertDoesNotThrow(() -> customerService.addNameToProfile(phoneNumber, name));
+        verify(customerRepository, times(1)).save(customerEntity);
+        assertEquals(name, customerEntity.getName());
+        assertTrue(customerEntity.isProfileComplete());
+    }
+
+    @Test
+    void addNameToProfile_whenNameIsInvalid_thenThrowsException() {
+        String phoneNumber = "+380976727479";
+        String name = "";
+
+        CustomerEntity customerEntity = new CustomerEntity();
+        customerEntity.setPhoneNumber(phoneNumber);
+
+        when(customerRepository.getCustomerEntityByPhoneNumber(phoneNumber)).thenReturn(customerEntity);
+
+        assertThrows(InputDataException.class, () -> customerService.addNameToProfile(phoneNumber, name));
+    }
+
+    @Test
+    void updateProfileInfo_whenAllFieldsAreUpdated_thenSuccess() {
+        String phoneNumber = "+380976727479";
+        UpdateProfileDTO profileDTO = new UpdateProfileDTO();
+        profileDTO.setName("John Doe");
+        profileDTO.setEmail("johndoe@example.com");
+        profileDTO.setProfilePhoto("http://example.com/photos/johndoe.jpg");
+        profileDTO.setHomeAddress("123 Elm St");
+        profileDTO.setPreferredPaymentMethod("Credit Card");
+        profileDTO.setEmergencyContact("+380123456789");
+        profileDTO.setPreferredLanguage("English");
+
+        CustomerEntity customerEntity = new CustomerEntity();
+        customerEntity.setPhoneNumber(phoneNumber);
+
+        when(customerRepository.getCustomerEntityByPhoneNumber(phoneNumber)).thenReturn(customerEntity);
+
+        assertDoesNotThrow(() -> customerService.updateProfileInfo(phoneNumber, profileDTO));
+
+        verify(customerRepository, times(1)).save(customerEntity);
+        assertEquals("John Doe", customerEntity.getName());
+        assertEquals("johndoe@example.com", customerEntity.getEmail());
+        assertEquals("http://example.com/photos/johndoe.jpg", customerEntity.getProfilePhoto());
+        assertEquals("123 Elm St", customerEntity.getHomeAddress());
+        assertEquals("Credit Card", customerEntity.getPreferredPaymentMethod());
+        assertEquals("+380123456789", customerEntity.getEmergencyContact());
+        assertEquals("English", customerEntity.getPreferredLanguage());
+        assertTrue(customerEntity.isProfileComplete());
+    }
+
+    @Test
+    void updateProfileInfo_whenOnlySomeFieldsAreUpdated_thenSuccess() {
+        String phoneNumber = "+380976727479";
+        UpdateProfileDTO profileDTO = new UpdateProfileDTO();
+        profileDTO.setName("John Doe");
+        profileDTO.setEmail(null);  // Email is not provided
+        profileDTO.setHomeAddress("123 Elm St");
+
+        CustomerEntity customerEntity = new CustomerEntity();
+        customerEntity.setPhoneNumber(phoneNumber);
+
+        when(customerRepository.getCustomerEntityByPhoneNumber(phoneNumber)).thenReturn(customerEntity);
+
+        assertDoesNotThrow(() -> customerService.updateProfileInfo(phoneNumber, profileDTO));
+
+        verify(customerRepository, times(1)).save(customerEntity);
+        assertEquals("John Doe", customerEntity.getName());
+        assertEquals("123 Elm St", customerEntity.getHomeAddress());
+        assertNull(customerEntity.getEmail());  // Email should remain unchanged
+    }
+
+    @Test
+    void sendSms_whenPhoneNumberIsValid_thenSmsSentSuccessfully() {
+        String phoneNumber = "+380976727479";
+
+        CustomerEntity customerEntity = new CustomerEntity();
+        customerEntity.setPhoneNumber(phoneNumber);
+        customerEntity.setVerifiedPhoneNumber(false);
+
+        when(customerRepository.getCustomerEntityByPhoneNumber(phoneNumber)).thenReturn(customerEntity);
+        when(smsService.sendSms(anyString())).thenReturn(new SmsVerifyDTO("123456", true));
+
+        assertDoesNotThrow(() -> customerService.sendSms(phoneNumber));
+        verify(customerRepository, times(1)).save(customerEntity);
+        assertEquals("123456", customerEntity.getVerificationCode());
+    }
+
+    @Test
+    void sendSms_whenPhoneNumberIsAlreadyVerified_thenThrowsException() {
+        String phoneNumber = "+380976727479";
+
+        CustomerEntity customerEntity = new CustomerEntity();
+        customerEntity.setPhoneNumber(phoneNumber);
+        customerEntity.setVerifiedPhoneNumber(true);
+
+        when(customerRepository.getCustomerEntityByPhoneNumber(phoneNumber)).thenReturn(customerEntity);
+
+        assertThrows(InputDataException.class, () -> customerService.sendSms(phoneNumber));
+    }
+
+    @Test
+    void searchByRsql_whenQueryIsValid_thenReturnsResults() {
+        String rsqlQuery = "phoneNumber=='+380976727479'";
+
+        CustomerEntity customerEntity = new CustomerEntity();
+        customerEntity.setPhoneNumber("+380976727479");
+
+        when(customerRepository.findAll(any(Specification.class))).thenReturn(List.of(customerEntity));
+        when(customerMapper.customerEntitiesToCustomerDTO(anyList())).thenReturn(List.of(new CustomerDTO()));
+
+        List<CustomerDTO> results = customerService.searchByRsql(rsqlQuery);
+
+        assertNotNull(results);
+        assertFalse(results.isEmpty());
     }
 }
